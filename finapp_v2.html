@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>FinApp Business</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+:root{
+  --bg:#f2f2f7;--card:#ffffff;--text:#000000;--hint:#8e8e93;--link:#007aff;
+  --btn:#007aff;--btn-text:#ffffff;--border:rgba(0,0,0,0.08);
+  --green:#34c759;--red:#ff3b30;--orange:#ff9500;--purple:#5856d6;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;overscroll-behavior:none}
+::-webkit-scrollbar{display:none}
+*{scrollbar-width:none}
+
+/* Layout */
+.page{min-height:100vh;padding-bottom:80px;background:var(--bg)}
+.px{padding-left:16px;padding-right:16px}
+.card{background:var(--card);border-radius:16px;padding:16px}
+.card-0{background:var(--card);border-radius:16px}
+
+/* Bottom nav */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);z-index:100;display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0 6px;border:none;background:none;cursor:pointer;gap:2px}
+.bnav-icon{font-size:22px;line-height:1;transition:transform .15s}
+.bnav-btn.active .bnav-icon{transform:scale(1.15)}
+.bnav-label{font-size:10px;font-weight:500}
+
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:14px;font-weight:600;cursor:pointer;transition:transform .1s,opacity .1s;font-family:inherit}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:var(--btn);color:var(--btn-text);padding:14px 20px;font-size:16px;width:100%}
+.btn-secondary{background:var(--bg);color:var(--text);padding:10px 16px;font-size:14px}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:10px}
+.btn-danger{background:#ff3b30;color:#fff;padding:14px 20px;font-size:16px;width:100%}
+
+/* Pill tabs */
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.tab{flex-shrink:0;border:none;border-radius:12px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab.active{background:var(--btn);color:var(--btn-text)}
+.tab.inactive{background:var(--card);color:var(--hint)}
+
+/* Skeleton */
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skel{background:linear-gradient(90deg,#e8e8e8 25%,#f0f0f0 50%,#e8e8e8 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px}
+
+/* Amounts */
+.pos{color:var(--green)}
+.neg{color:var(--red)}
+
+/* Hero card */
+.hero{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border-radius:24px;padding:20px;color:#fff}
+
+/* Section title */
+.sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--hint);margin-bottom:12px}
+
+/* Toggle */
+.toggle{width:44px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle-thumb{position:absolute;top:2px;width:20px;height:20px;background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .2s}
+
+/* Sheet overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end}
+.sheet{background:var(--card);border-radius:24px 24px 0 0;padding:24px;width:100%;max-height:85vh;overflow-y:auto}
+.sheet-handle{width:40px;height:4px;border-radius:2px;background:var(--hint);opacity:.3;margin:0 auto 20px}
+
+/* Chip */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid;cursor:pointer;flex-shrink:0;transition:all .15s}
+
+/* Input */
+.input{width:100%;padding:11px 16px 11px 36px;border-radius:14px;border:none;background:var(--card);font-size:14px;color:var(--text);font-family:inherit;outline:none}
+.input-wrap{position:relative}
+.input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--hint)}
+
+/* Divider */
+.divider{height:1px;background:var(--border);margin:0 -16px}
+
+/* Badge */
+.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px}
+
+/* Row */
+.row{display:flex;align-items:center;gap:12px;padding:14px 0}
+.row+.row{border-top:1px solid var(--border)}
+.row-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--bg);flex-shrink:0}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .25s ease}
+
+/* Account card */
+.acc-card{border-radius:20px;padding:16px;background:var(--card)}
+.bank-avatar{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useCallback } = React;
+const { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } = Recharts;
+
+// ── Utils ─────────────────────────────────────────────────
+const fmt = (n, compact=false) => {
+  if (compact && Math.abs(n) >= 1e6) return `${(n/1e6).toFixed(1)} млн ₽`;
+  if (compact && Math.abs(n) >= 1e3) return `${(n/1e3).toFixed(0)} тыс ₽`;
+  return new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',minimumFractionDigits:0,maximumFractionDigits:0}).format(n);
+};
+const fmtDate = d => {
+  const date = new Date(d);
+  const now = new Date();
+  if (date.toDateString()===now.toDateString()) return 'Сегодня';
+  const y = new Date(now); y.setDate(y.getDate()-1);
+  if (date.toDateString()===y.toDateString()) return 'Вчера';
+  return date.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+};
+const subDays = (n) => { const d=new Date(); d.setDate(d.getDate()-n); return d; };
+const fmtShort = d => new Date(d).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'});
+
+// ── Mock Data ─────────────────────────────────────────────
+const ACCOUNTS = [
+  {id:'a1',bankId:'tinkoff',bankName:'Т-Банк',logo:'🏦',color:'#FFDD2D',name:'Расчётный счёт',num:'****4521',balance:1847320,currency:'RUB',lastSync:new Date().toISOString()},
+  {id:'a2',bankId:'tinkoff',bankName:'Т-Банк',logo:'🏦',color:'#FFDD2D',name:'Депозит',num:'****8812',balance:3200000,currency:'RUB',lastSync:new Date().toISOString()},
+  {id:'a3',bankId:'sber',bankName:'Сбербанк',logo:'🟢',color:'#21A038',name:'Корп. карта',num:'****1234',balance:456780,currency:'RUB',lastSync:subDays(1).toISOString()},
+];
+const CATS = [
+  {id:'revenue',name:'Выручка',icon:'💰',color:'#34C759',type:'income'},
+  {id:'services',name:'Услуги',icon:'🛠',color:'#007AFF',type:'income'},
+  {id:'supplies',name:'Закупки',icon:'📦',color:'#FF9500',type:'expense'},
+  {id:'rent',name:'Аренда',icon:'🏢',color:'#FF3B30',type:'expense'},
+  {id:'payroll',name:'Зарплата',icon:'👥',color:'#5856D6',type:'expense'},
+  {id:'marketing',name:'Маркетинг',icon:'📣',color:'#FF2D55',type:'expense'},
+  {id:'taxes',name:'Налоги',icon:'🏛',color:'#8E8E93',type:'expense'},
+];
+const COUNTERPARTIES = ['ООО Ромашка','ИП Сидоров А.В.','АО Техносистемы','ООО МедиаГрупп','Яндекс','Google LLC','ООО СтройПроф','ФНС России','Ростелеком','ООО Логистик'];
+const makeTx = (i) => {
+  const isIn = Math.random()>.55;
+  const cats = CATS.filter(c=>isIn?c.type==='income':c.type==='expense');
+  const cat = cats[Math.floor(Math.random()*cats.length)];
+  const amt = isIn ? Math.round((Math.random()*500000+10000)/100)*100 : Math.round((Math.random()*200000+5000)/100)*100;
+  const acc = ACCOUNTS[Math.floor(Math.random()*ACCOUNTS.length)];
+  return {id:`tx${i}`,date:subDays(Math.floor(Math.random()*30)).toISOString(),amount:isIn?amt:-amt,description:COUNTERPARTIES[Math.floor(Math.random()*COUNTERPARTIES.length)],category:cat,accountId:acc.id,bankName:acc.bankName,type:isIn?'income':'expense'};
+};
+const TRANSACTIONS = Array.from({length:60},(_,i)=>makeTx(i)).sort((a,b)=>new Date(b.date)-new Date(a.date));
+const CASHFLOW = Array.from({length:30},(_,i)=>{
+  const d=subDays(29-i);
+  const inc=Math.round((Math.random()*300000+50000)/1000)*1000;
+  const exp=Math.round((Math.random()*200000+30000)/1000)*1000;
+  return {date:fmtShort(d),income:inc,expenses:exp,net:inc-exp};
+});
+const CAT_SPEND = [{name:'Закупки',value:680000,color:'#FF9500'},{name:'Зарплата',value:540000,color:'#5856D6'},{name:'Аренда',value:240000,color:'#FF3B30'},{name:'Маркетинг',value:180000,color:'#FF2D55'},{name:'Налоги',value:156000,color:'#8E8E93'},{name:'Прочее',value:80500,color:'#AEAEB2'}];
+const FORECAST = Array.from({length:14},(_,i)=>({date:fmtShort(new Date(Date.now()+864e5*(i+1))),predicted:Math.round((Math.random()*150000+100000)/1000)*1000,lower:Math.round((Math.random()*80000+60000)/1000)*1000,upper:Math.round((Math.random()*200000+150000)/1000)*1000}));
+const BANKS = [{id:'tinkoff',name:'Т-Банк',logo:'🏦',available:true},{id:'sber',name:'Сбербанк',logo:'🟢',available:true},{id:'alfa',name:'Альфа-Банк',logo:'🔴',available:true},{id:'vtb',name:'ВТБ',logo:'🔵',available:true},{id:'raiffeisen',name:'Райффайзен',logo:'🟡',available:false},{id:'wise',name:'Wise',logo:'🌐',available:false}];
+
+// ── Reusable components ───────────────────────────────────
+const Skeleton = ({w,h,r=8,mb=0}) => <div className="skel" style={{width:w||'100%',height:h||16,borderRadius:r,marginBottom:mb}}/>;
+
+const CustomTooltip = ({active,payload,label}) => {
+  if(!active||!payload?.length) return null;
+  return <div className="card" style={{padding:'8px 12px',fontSize:12,boxShadow:'0 4px 20px rgba(0,0,0,.15)'}}>
+    <div style={{color:'var(--hint)',marginBottom:4}}>{label}</div>
+    {payload.map((p,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:6}}>
+      <div style={{width:8,height:8,borderRadius:4,background:p.color}}/>
+      <span>{fmt(p.value,true)}</span>
+    </div>)}
+  </div>;
+};
+
+// ── Screens ───────────────────────────────────────────────
+
+// AUTH
+const API_URL = window.location.origin; // same origin as backend
+
+const AuthScreen = ({onLogin}) => {
+  const [loading,setLoading] = useState(false);
+  const [error,setError] = useState('');
+
+  const go = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const tg = window.Telegram?.WebApp;
+
+      if (tg && tg.initDataUnsafe?.user) {
+        // Inside Telegram — use user data directly, no backend needed
+        await new Promise(r=>setTimeout(r,600));
+        onLogin(tg.initDataUnsafe.user);
+      } else {
+        // Browser / dev mode — use mock user
+        await new Promise(r=>setTimeout(r,800));
+        onLogin({id:123,first_name:'Алексей',last_name:'Петров',username:'aleksey_petrov'});
+      }
+    } catch(e) {
+      setError(e.message || 'Попробуй ещё раз');
+      setLoading(false);
+    }
+  };
+
+  useEffect(()=>{ setTimeout(go, 300); },[]);
+
+  return <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',background:'var(--bg)'}}>
+    <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 24px 0',textAlign:'center'}}>
+      <div style={{fontSize:72,marginBottom:20}}>💼</div>
+      <h1 style={{fontSize:28,fontWeight:800,marginBottom:8}}>FinApp Business</h1>
+      <p style={{fontSize:15,color:'var(--hint)',lineHeight:1.5,maxWidth:280}}>Все банковские счета, движение средств и аналитика прямо в Telegram</p>
+      <div style={{marginTop:32,width:'100%',display:'flex',flexDirection:'column',gap:10}}>
+        {[['🏦','Все банки в одном месте','Т-Банк, Сбер, Альфа и другие'],
+          ['📊','Cash flow в реальном времени','Поступления и расходы по дням'],
+          ['🔒','Банковская безопасность','OAuth 2.0, только просмотр, AES-256']
+        ].map(([icon,title,desc],i)=>(
+          <div key={i} className="card" style={{display:'flex',alignItems:'center',gap:12,textAlign:'left',padding:'12px 16px'}}>
+            <span style={{fontSize:24}}>{icon}</span>
+            <div><div style={{fontWeight:600,fontSize:14}}>{title}</div><div style={{fontSize:12,color:'var(--hint)',marginTop:2}}>{desc}</div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div style={{padding:'16px 24px 40px'}}>
+      {error && <div style={{textAlign:'center',fontSize:13,color:'var(--red)',marginBottom:10}}>⚠️ {error}</div>}
+      <button className="btn btn-primary" onClick={go} disabled={loading} style={{fontSize:16,borderRadius:16}}>
+        {loading ? '⟳ Входим...' : 'Войти через Telegram'}
+      </button>
+      <p style={{textAlign:'center',fontSize:11,color:'var(--hint)',marginTop:8}}>Мы не храним пароли и не запрашиваем доступ к переводам</p>
+    </div>
+  </div>;
+};
+
+// DASHBOARD
+const DashboardScreen = ({user,setPage}) => {
+  const [period,setPeriod] = useState('30d');
+  const [chartMode,setChartMode] = useState('area');
+  const [loading,setLoading] = useState(true);
+  useEffect(()=>{ setLoading(true); const t=setTimeout(()=>setLoading(false),500); return()=>clearTimeout(t); },[period]);
+  const days = period==='7d'?7:period==='30d'?30:90;
+  const cf = CASHFLOW.slice(-Math.min(days,CASHFLOW.length));
+  const summary = {totalBalance:5504100,income:2340000,expenses:1876500,savingsRate:19.8};
+  const h = new Date().getHours();
+  const greet = h<12?'Доброе утро':h<18?'Добрый день':'Добрый вечер';
+
+  return <div className="page fade-up">
+    {/* Header */}
+    <div className="px" style={{display:'flex',justifyContent:'space-between',alignItems:'center',paddingTop:16,paddingBottom:12}}>
+      <div><div style={{fontSize:13,color:'var(--hint)'}}>{greet}</div><div style={{fontSize:20,fontWeight:800}}>{user?.name||'Алексей'} 👋</div></div>
+      <button style={{width:40,height:40,borderRadius:20,background:'var(--card)',border:'none',fontSize:18,cursor:'pointer'}}>🔔</button>
+    </div>
+
+    <div className="px" style={{display:'flex',flexDirection:'column',gap:16}}>
+      {/* Hero balance */}
+      <div className="hero">
+        <div style={{fontSize:13,opacity:.65,marginBottom:4}}>Общий баланс</div>
+        {loading ? <div className="skel" style={{height:36,width:200,marginBottom:14,background:'rgba(255,255,255,.15)',borderRadius:8}}/> :
+          <div style={{fontSize:32,fontWeight:800,marginBottom:14}}>{fmt(summary.totalBalance)}</div>}
+        <div style={{display:'flex',gap:24}}>
+          {[['Приход',summary.income,'#4ade80','+12.4%'],['Расход',summary.expenses,'#f87171','-3.1%'],['Сбережения',null,'#93c5fd',`${summary.savingsRate}%`]].map(([l,v,c,ch],i)=>(
+            <div key={i}>
+              <div style={{fontSize:11,opacity:.6}}>{l}</div>
+              {loading ? <div className="skel" style={{height:18,width:80,background:'rgba(255,255,255,.15)',borderRadius:5}}/> :
+                <div style={{fontSize:13,fontWeight:700,color:c}}>{v?fmt(v,true):''} <span style={{fontSize:11,opacity:.7,fontWeight:400}}>{ch}</span></div>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Period tabs */}
+      <div style={{display:'flex',gap:8}}>
+        {[['7Д','7d'],['30Д','30d'],['90Д','90d']].map(([l,v])=>(
+          <button key={v} onClick={()=>setPeriod(v)} className={`tab ${period===v?'active':'inactive'}`} style={{flex:1}}>{l}</button>
+        ))}
+      </div>
+
+      {/* Chart card */}
+      <div className="card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <span style={{fontWeight:700,fontSize:14}}>Cash Flow</span>
+          <div style={{display:'flex',gap:4}}>
+            {[['Линия','area'],['Нетто','bar']].map(([l,m])=>(
+              <button key={m} onClick={()=>setChartMode(m)} className="tab btn-sm" style={{padding:'5px 10px',fontSize:11,background:chartMode===m?'var(--btn)':'var(--bg)',color:chartMode===m?'#fff':'var(--hint)',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'inherit',fontWeight:600}}>{l}</button>
+            ))}
+          </div>
+        </div>
+        {loading ? <Skeleton h={180}/> :
+          <ResponsiveContainer width="100%" height={180}>
+            {chartMode==='area' ?
+              <AreaChart data={cf} margin={{top:4,right:0,left:0,bottom:0}}>
+                <defs>
+                  <linearGradient id="gi" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#34C759" stopOpacity={.25}/><stop offset="95%" stopColor="#34C759" stopOpacity={0}/></linearGradient>
+                  <linearGradient id="ge" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#FF3B30" stopOpacity={.2}/><stop offset="95%" stopColor="#FF3B30" stopOpacity={0}/></linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,.05)" vertical={false}/>
+                <XAxis dataKey="date" tick={{fontSize:10,fill:'var(--hint)'}} axisLine={false} tickLine={false} interval="preserveStartEnd"/>
+                <YAxis hide/>
+                <Tooltip content={<CustomTooltip/>}/>
+                <Area type="monotone" dataKey="income" stroke="#34C759" strokeWidth={2} fill="url(#gi)" name="Приход" dot={false}/>
+                <Area type="monotone" dataKey="expenses" stroke="#FF3B30" strokeWidth={2} fill="url(#ge)" name="Расход" dot={false}/>
+              </AreaChart>
+            :
+              <BarChart data={cf} margin={{top:4,right:0,left:0,bottom:0}}>
+                <XAxis dataKey="date" tick={{fontSize:10,fill:'var(--hint)'}} axisLine={false} tickLine={false} interval="preserveStartEnd"/>
+                <YAxis hide/>
+                <Tooltip content={<CustomTooltip/>}/>
+                <Bar dataKey="net" radius={[4,4,0,0]} name="Нетто">
+                  {cf.map((e,i)=><Cell key={i} fill={e.net>=0?'#34C759':'#FF3B30'}/>)}
+                </Bar>
+              </BarChart>
+            }
+          </ResponsiveContainer>
+        }
+        <div style={{display:'flex',gap:16,marginTop:12,paddingTop:12,borderTop:'1px solid var(--border)'}}>
+          {[['#34C759','Приход'],['#FF3B30','Расход']].map(([c,l])=>(
+            <div key={l} style={{display:'flex',alignItems:'center',gap:6}}>
+              <div style={{width:10,height:10,borderRadius:5,background:c}}/>
+              <span style={{fontSize:12,color:'var(--hint)'}}>{l}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Accounts strip */}
+      <div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <div className="sec-title" style={{margin:0}}>Счета</div>
+          <button onClick={()=>setPage('accounts')} style={{fontSize:12,color:'var(--link)',background:'none',border:'none',cursor:'pointer',fontWeight:600}}>Все →</button>
+        </div>
+        <div style={{display:'flex',gap:12,overflowX:'auto',paddingBottom:4}}>
+          {ACCOUNTS.map(a=>(
+            <div key={a.id} style={{flexShrink:0,width:156,borderRadius:16,padding:12,background:'var(--card)'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                <span style={{fontSize:20}}>{a.logo}</span>
+                <span style={{fontSize:11,color:'var(--hint)',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.name}</span>
+              </div>
+              <div style={{fontWeight:800,fontSize:13}}>{fmt(a.balance,true)}</div>
+              <div style={{fontSize:11,color:'var(--hint)',marginTop:2}}>{a.num}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent transactions */}
+      <div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <div className="sec-title" style={{margin:0}}>Последние операции</div>
+          <button onClick={()=>setPage('transactions')} style={{fontSize:12,color:'var(--link)',background:'none',border:'none',cursor:'pointer',fontWeight:600}}>Все →</button>
+        </div>
+        <div className="card-0">
+          {TRANSACTIONS.slice(0,5).map((tx,i)=>(
+            <div key={tx.id} style={{display:'flex',alignItems:'center',gap:12,padding:'14px 16px',borderBottom:i<4?'1px solid var(--border)':'none'}}>
+              <div style={{width:40,height:40,borderRadius:20,background:tx.category.color+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{tx.category.icon}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:600,fontSize:14,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{tx.description}</div>
+                <div style={{fontSize:12,color:'var(--hint)',marginTop:2}}>{tx.category.name} · {fmtDate(tx.date)}</div>
+              </div>
+              <div style={{fontWeight:700,fontSize:14,color:tx.amount>0?'var(--green)':'var(--red)',flexShrink:0}}>
+                {tx.amount>0?'+':''}{fmt(tx.amount,true)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>;
+};
+
+// TRANSACTIONS
+const TransactionsScreen = () => {
+  const [search,setSearch] = useState('');
+  const [typeFilter,setTypeFilter] = useState('all');
+  const [catFilter,setCatFilter] = useState(null);
+
+  const filtered = useMemo(()=>TRANSACTIONS.filter(tx=>{
+    const ms = !search||tx.description.toLowerCase().includes(search.toLowerCase());
+    const mt = typeFilter==='all'||tx.type===typeFilter;
+    const mc = !catFilter||tx.category.id===catFilter;
+    return ms&&mt&&mc;
+  }),[search,typeFilter,catFilter]);
+
+  const grouped = useMemo(()=>{
+    const g={};
+    filtered.forEach(tx=>{
+      const k=fmtDate(tx.date);
+      if(!g[k]) g[k]=[];
+      g[k].push(tx);
+    });
+    return g;
+  },[filtered]);
+
+  return <div className="page fade-up">
+    <div className="px" style={{paddingTop:16}}>
+      <h1 style={{fontSize:24,fontWeight:800,marginBottom:16}}>Операции</h1>
+
+      {/* Search */}
+      <div className="input-wrap" style={{marginBottom:12}}>
+        <span className="input-icon">🔍</span>
+        <input className="input" placeholder="Поиск по контрагенту..." value={search} onChange={e=>setSearch(e.target.value)}/>
+      </div>
+
+      {/* Type filter */}
+      <div className="tabs" style={{marginBottom:10}}>
+        {[['Все','all'],['Приход','income'],['Расход','expense']].map(([l,v])=>(
+          <button key={v} onClick={()=>setTypeFilter(v)} className={`tab ${typeFilter===v?'active':'inactive'}`}>{l}</button>
+        ))}
+      </div>
+
+      {/* Category chips */}
+      <div className="tabs" style={{marginBottom:16}}>
+        {CATS.map(c=>(
+          <button key={c.id} className="chip" onClick={()=>setCatFilter(catFilter===c.id?null:c.id)}
+            style={{background:catFilter===c.id?c.color+'22':'transparent',borderColor:catFilter===c.id?c.color:'var(--border)',color:catFilter===c.id?c.color:'var(--hint)'}}>
+            {c.icon} {c.name}
+          </button>
+        ))}
+      </div>
+
+      <div style={{fontSize:12,color:'var(--hint)',marginBottom:12}}>Найдено: {filtered.length} операций</div>
+
+      {/* Grouped list */}
+      <div style={{display:'flex',flexDirection:'column',gap:20}}>
+        {Object.entries(grouped).map(([date,txs])=>(
+          <div key={date}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+              <span style={{fontSize:12,fontWeight:700,color:'var(--hint)'}}>{date}</span>
+              <span style={{fontSize:12,color:'var(--hint)'}}>{fmt(txs.reduce((s,t)=>s+t.amount,0),true)}</span>
+            </div>
+            <div className="card-0">
+              {txs.map((tx,i)=>(
+                <div key={tx.id} style={{display:'flex',alignItems:'center',gap:12,padding:'13px 16px',borderBottom:i<txs.length-1?'1px solid var(--border)':'none'}}>
+                  <div style={{width:40,height:40,borderRadius:20,background:tx.category.color+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:17,flexShrink:0}}>{tx.category.icon}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:600,fontSize:14,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{tx.description}</div>
+                    <div style={{display:'flex',alignItems:'center',gap:6,marginTop:3}}>
+                      <span className="badge" style={{background:tx.category.color+'22',color:tx.category.color}}>{tx.category.name}</span>
+                      <span style={{fontSize:11,color:'var(--hint)'}}>{tx.bankName}</span>
+                    </div>
+                  </div>
+                  <div style={{fontWeight:700,fontSize:14,color:tx.amount>0?'var(--green)':'var(--red)',flexShrink:0,textAlign:'right'}}>
+                    {tx.amount>0?'+':''}{fmt(tx.amount,true)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>;
+};
+
+// ANALYTICS
+const AnalyticsScreen = () => {
+  const [tab,setTab] = useState('structure');
+  const [loading,setLoading] = useState(true);
+  useEffect(()=>{ const t=setTimeout(()=>setLoading(false),500); return()=>clearTimeout(t); },[]);
+  const total = CAT_SPEND.reduce((s,c)=>s+c.value,0);
+
+  return <div className="page fade-up">
+    <div className="px" style={{paddingTop:16}}>
+      <h1 style={{fontSize:24,fontWeight:800,marginBottom:4}}>Аналитика</h1>
+      <div style={{fontSize:13,color:'var(--hint)',marginBottom:16}}>Последние 30 дней</div>
+
+      <div className="tabs" style={{marginBottom:20}}>
+        {[['🗂 Структура','structure'],['🔮 Прогноз','forecast'],['⚖️ Сравнение','compare']].map(([l,v])=>(
+          <button key={v} onClick={()=>setTab(v)} className={`tab ${tab===v?'active':'inactive'}`}>{l}</button>
+        ))}
+      </div>
+
+      {tab==='structure' && <div style={{display:'flex',flexDirection:'column',gap:16}}>
+        {/* Donut */}
+        <div className="card">
+          <div className="sec-title">Расходы по категориям</div>
+          {loading ? <Skeleton h={180}/> :
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <ResponsiveContainer width={140} height={180}>
+                <PieChart>
+                  <Pie data={CAT_SPEND} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
+                    {CAT_SPEND.map((e,i)=><Cell key={i} fill={e.color}/>)}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip/>}/>
+                </PieChart>
+              </ResponsiveContainer>
+              <div style={{flex:1,display:'flex',flexDirection:'column',gap:8}}>
+                {CAT_SPEND.map((c,i)=>(
+                  <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <div style={{width:10,height:10,borderRadius:5,background:c.color,flexShrink:0}}/>
+                      <span style={{fontSize:12}}>{c.name}</span>
+                    </div>
+                    <span style={{fontSize:12,color:'var(--hint)',fontWeight:600}}>{Math.round(c.value/total*100)}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          }
+        </div>
+
+        {/* Bars */}
+        <div className="card">
+          <div className="sec-title">Детализация</div>
+          <div style={{display:'flex',flexDirection:'column',gap:16}}>
+            {CAT_SPEND.map((c,i)=>{
+              const pct=Math.round(c.value/total*100);
+              return <div key={i}>
+                <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+                  <span style={{fontSize:13,fontWeight:600}}>{c.name}</span>
+                  <span style={{fontSize:13,fontWeight:700}}>{fmt(c.value,true)} <span style={{fontSize:11,color:'var(--hint)',fontWeight:400}}>{pct}%</span></span>
+                </div>
+                <div style={{height:6,borderRadius:3,background:'var(--bg)'}}>
+                  <div style={{height:6,borderRadius:3,background:c.color,width:`${pct}%`,transition:'width .6s ease'}}/>
+                </div>
+              </div>;
+            })}
+          </div>
+        </div>
+      </div>}
+
+      {tab==='forecast' && <div style={{display:'flex',flexDirection:'column',gap:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          {[['📈','Прогноз прихода','2 850 000 ₽','#34C759'],['📉','Прогноз расхода','1 920 000 ₽','#FF3B30'],['💰','Прогноз баланса','+930 000 ₽','#007AFF'],['🎯','Уверенность','78%','#FF9500']].map(([icon,l,v,c],i)=>(
+            <div key={i} className="card" style={{textAlign:'center'}}>
+              <div style={{fontSize:28,marginBottom:4}}>{icon}</div>
+              <div style={{fontSize:15,fontWeight:800,color:c}}>{v}</div>
+              <div style={{fontSize:11,color:'var(--hint)',marginTop:2}}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="sec-title">Прогноз cash flow на 14 дней</div>
+          {loading ? <Skeleton h={170}/> :
+            <ResponsiveContainer width="100%" height={170}>
+              <AreaChart data={FORECAST} margin={{top:4,right:0,left:0,bottom:0}}>
+                <defs>
+                  <linearGradient id="gf" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#007AFF" stopOpacity={.3}/>
+                    <stop offset="95%" stopColor="#007AFF" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,.05)" vertical={false}/>
+                <XAxis dataKey="date" tick={{fontSize:10,fill:'var(--hint)'}} axisLine={false} tickLine={false}/>
+                <YAxis hide/>
+                <Tooltip content={<CustomTooltip/>}/>
+                <Area type="monotone" dataKey="upper" stroke="transparent" fill="#007AFF" fillOpacity={.07} name="Макс" dot={false}/>
+                <Area type="monotone" dataKey="predicted" stroke="#007AFF" strokeWidth={2} fill="url(#gf)" name="Прогноз" dot={false}/>
+              </AreaChart>
+            </ResponsiveContainer>
+          }
+          <div style={{marginTop:10,paddingTop:10,borderTop:'1px solid var(--border)',fontSize:11,color:'var(--hint)'}}>ℹ️ Прогноз на основе паттернов 90 дней. Доверительный интервал 80%.</div>
+        </div>
+        <div className="card">
+          <div className="sec-title">Ожидаемые платежи</div>
+          <div style={{display:'flex',flexDirection:'column',gap:14}}>
+            {[['🏢','Аренда офиса','15 июня',-240000],['👥','Зарплата команды','20 июня',-540000],['🏛','Налог УСН','25 июня',-156000]].map(([icon,name,date,amt],i)=>(
+              <div key={i} style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{width:36,height:36,borderRadius:18,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:17,flexShrink:0}}>{icon}</div>
+                <div style={{flex:1}}><div style={{fontSize:14,fontWeight:600}}>{name}</div><div style={{fontSize:12,color:'var(--hint)'}}>{date}</div></div>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--red)'}}>{fmt(amt,true)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>}
+
+      {tab==='compare' && <div style={{display:'flex',flexDirection:'column',gap:12}}>
+        {[['Выручка',2340000,2085000],['Расходы',1876500,1934200],['Прибыль',463500,150800],['Средний чек',45000,38000]].map(([l,cur,prev],i)=>{
+          const ch=(cur-prev)/prev*100;
+          const pos=ch>0;
+          return <div key={i} className="card" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div>
+              <div style={{fontSize:14,fontWeight:600}}>{l}</div>
+              <div style={{fontSize:12,color:'var(--hint)',marginTop:2}}>Пред.: {fmt(prev,true)}</div>
+            </div>
+            <div style={{textAlign:'right'}}>
+              <div style={{fontSize:14,fontWeight:800}}>{fmt(cur,true)}</div>
+              <div style={{fontSize:12,fontWeight:600,color:pos?'var(--green)':'var(--red)'}}>{pos?'↑':'↓'} {Math.abs(ch).toFixed(1)}%</div>
+            </div>
+          </div>;
+        })}
+      </div>}
+    </div>
+  </div>;
+};
+
+// ACCOUNTS
+const AccountsScreen = () => {
+  const [accounts,setAccounts] = useState(ACCOUNTS);
+  const [showSheet,setShowSheet] = useState(false);
+  const [syncing,setSyncing] = useState(null);
+  const total = accounts.reduce((s,a)=>s+a.balance,0);
+
+  const sync = async (id) => {
+    setSyncing(id);
+    await new Promise(r=>setTimeout(r,1500));
+    setAccounts(prev=>prev.map(a=>a.id===id?{...a,lastSync:new Date().toISOString()}:a));
+    setSyncing(null);
+  };
+  const disconnect = (id) => {
+    if(confirm('Отвязать счёт? Данные об операциях сохранятся.')) setAccounts(prev=>prev.filter(a=>a.id!==id));
+  };
+
+  return <div className="page fade-up">
+    <div className="px" style={{paddingTop:16}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20}}>
+        <div>
+          <h1 style={{fontSize:24,fontWeight:800}}>Счета</h1>
+          <div style={{fontSize:13,color:'var(--hint)',marginTop:2}}>Баланс: {fmt(total,true)}</div>
+        </div>
+        <button className="btn btn-secondary btn-sm" onClick={()=>setShowSheet(true)} style={{marginTop:4}}>+ Добавить</button>
+      </div>
+
+      <div style={{display:'flex',flexDirection:'column',gap:12}}>
+        {accounts.map(a=>(
+          <div key={a.id} className="acc-card">
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <div className="bank-avatar" style={{background:a.color+'22'}}>{a.logo}</div>
+                <div>
+                  <div style={{fontWeight:700,fontSize:15}}>{a.bankName}</div>
+                  <div style={{fontSize:12,color:'var(--hint)',marginTop:1}}>{a.name} · {a.num}</div>
+                </div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:4}}>
+                <div style={{width:6,height:6,borderRadius:3,background:'var(--green)'}}/>
+                <span style={{fontSize:11,color:'var(--hint)'}}>Активен</span>
+              </div>
+            </div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,color:'var(--hint)',marginBottom:2}}>Баланс</div>
+              <div style={{fontSize:26,fontWeight:800}}>{fmt(a.balance)}</div>
+            </div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',paddingTop:12,borderTop:'1px solid var(--border)'}}>
+              <div style={{fontSize:11,color:'var(--hint)'}}>Синхр.: {fmtDate(a.lastSync)}</div>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>sync(a.id)} disabled={syncing===a.id}
+                  style={{fontSize:12,fontWeight:600,color:'var(--link)',background:'var(--bg)',border:'none',borderRadius:8,padding:'6px 12px',cursor:'pointer'}}>
+                  {syncing===a.id?'⟳ Синх...':'⟳ Синхр.'}
+                </button>
+                <button onClick={()=>disconnect(a.id)}
+                  style={{fontSize:12,fontWeight:600,color:'var(--red)',background:'var(--bg)',border:'none',borderRadius:8,padding:'6px 12px',cursor:'pointer'}}>
+                  Отвязать
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Security note */}
+      <div style={{marginTop:16,padding:14,borderRadius:16,background:'var(--card)',display:'flex',gap:10}}>
+        <span style={{fontSize:20}}>🔒</span>
+        <div>
+          <div style={{fontSize:13,fontWeight:700,marginBottom:2}}>Безопасное подключение</div>
+          <div style={{fontSize:12,color:'var(--hint)',lineHeight:1.4}}>OAuth 2.0 — только просмотр. Мы не получаем доступ к переводам и не видим PIN-коды.</div>
+        </div>
+      </div>
+    </div>
+
+    {/* Bottom sheet */}
+    {showSheet && <div className="overlay" onClick={()=>setShowSheet(false)}>
+      <div className="sheet" onClick={e=>e.stopPropagation()}>
+        <div className="sheet-handle"/>
+        <div style={{fontSize:20,fontWeight:800,marginBottom:4}}>Подключить банк</div>
+        <div style={{fontSize:14,color:'var(--hint)',marginBottom:20}}>OAuth 2.0 — безопасное подключение только для просмотра</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          {BANKS.map(b=>(
+            <button key={b.id} disabled={!b.available}
+              style={{display:'flex',alignItems:'center',gap:10,padding:12,borderRadius:16,background:'var(--bg)',border:'none',cursor:b.available?'pointer':'not-allowed',opacity:b.available?1:.55,fontFamily:'inherit',textAlign:'left'}}
+              onClick={()=>{ if(b.available) { alert(`Открываем OAuth авторизацию ${b.name}...`); setShowSheet(false); } }}>
+              <span style={{fontSize:26}}>{b.logo}</span>
+              <div>
+                <div style={{fontSize:13,fontWeight:700}}>{b.name}</div>
+                <div style={{fontSize:11,color:b.available?'var(--green)':'var(--hint)'}}>{b.available?'Доступен':'Скоро'}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+        <button className="btn btn-secondary" onClick={()=>setShowSheet(false)} style={{width:'100%',padding:'13px',borderRadius:14}}>Закрыть</button>
+      </div>
+    </div>}
+  </div>;
+};
+
+// SETTINGS
+const SettingsScreen = ({user,onLogout}) => {
+  const [notif,setNotif] = useState(true);
+  const [alerts,setAlerts] = useState(true);
+  const [weekly,setWeekly] = useState(false);
+
+  const Toggle = ({v,onChange}) => (
+    <div className="toggle" style={{background:v?'var(--btn)':'var(--bg)'}} onClick={()=>onChange(!v)}>
+      <div className="toggle-thumb" style={{transform:v?'translateX(20px)':'translateX(2px)'}}/>
+    </div>
+  );
+
+  const Row = ({icon,title,sub,right,onClick,danger}) => (
+    <div className="row" style={{cursor:onClick?'pointer':'default'}} onClick={onClick}>
+      <div className="row-icon">{icon}</div>
+      <div style={{flex:1}}>
+        <div style={{fontSize:14,fontWeight:600,color:danger?'var(--red)':'var(--text)'}}>{title}</div>
+        {sub&&<div style={{fontSize:12,color:'var(--hint)',marginTop:1}}>{sub}</div>}
+      </div>
+      {right||( onClick&&<span style={{color:'var(--hint)',fontSize:18}}>›</span> )}
+    </div>
+  );
+
+  const Section = ({title,children}) => <div style={{marginBottom:20}}>
+    <div className="sec-title">{title}</div>
+    <div className="card">{children}</div>
+  </div>;
+
+  return <div className="page fade-up">
+    <div className="px" style={{paddingTop:16}}>
+      <h1 style={{fontSize:24,fontWeight:800,marginBottom:20}}>Настройки</h1>
+
+      {/* Profile */}
+      <div className="card" style={{display:'flex',alignItems:'center',gap:16,marginBottom:20}}>
+        <div style={{width:56,height:56,borderRadius:20,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,flexShrink:0}}>👤</div>
+        <div>
+          <div style={{fontSize:16,fontWeight:800}}>{user?.name||'Алексей Петров'}</div>
+          <div style={{fontSize:13,color:'var(--hint)'}}>{user?.username||'@aleksey'}</div>
+          <div style={{fontSize:12,color:'var(--green)',fontWeight:600,marginTop:3}}>● Подключён через Telegram</div>
+        </div>
+      </div>
+
+      <Section title="Уведомления">
+        <Row icon="🔔" title="Push-уведомления" sub="Все уведомления в Telegram" right={<Toggle v={notif} onChange={setNotif}/>}/>
+        <Row icon="⚠️" title="Алерты по балансу" sub="При снижении ниже порога" right={<Toggle v={alerts} onChange={setAlerts}/>}/>
+        <Row icon="📊" title="Еженедельный отчёт" sub="Итоги каждый понедельник" right={<Toggle v={weekly} onChange={setWeekly}/>}/>
+      </Section>
+
+      <Section title="Безопасность">
+        <Row icon="🔐" title="PIN-код" sub="Дополнительная защита" onClick={()=>alert('PIN-код будет добавлен в следующей версии')}/>
+        <Row icon="📋" title="Журнал действий" sub="История входов" onClick={()=>alert('Журнал будет добавлен в следующей версии')}/>
+        <Row icon="🗑" title="Удалить все данные" danger onClick={()=>alert('Для удаления обратитесь в поддержку')}/>
+      </Section>
+
+      <Section title="О приложении">
+        <Row icon="📄" title="Пользовательское соглашение" onClick={()=>{}}/>
+        <Row icon="🔒" title="Политика конфиденциальности" onClick={()=>{}}/>
+        <Row icon="ℹ️" title="Версия" right={<span style={{fontSize:12,color:'var(--hint)'}}>1.0.0 beta</span>}/>
+      </Section>
+
+      <button className="btn btn-danger" onClick={onLogout} style={{borderRadius:16}}>Выйти из аккаунта</button>
+    </div>
+  </div>;
+};
+
+// ── CRM MOCK DATA ─────────────────────────────────────────
+const CRM_LEADS = [
+  {id:'l1',name:'ООО Альфастрой',contact:'Михаил Громов',stage:'Переговоры',value:850000,days:12,score:82,source:'Входящий звонок',reason:null},
+  {id:'l2',name:'ИП Васильева Е.',contact:'Елена Васильева',stage:'Квалификация',value:120000,days:34,score:31,source:'Сайт',reason:'Нет бюджета'},
+  {id:'l3',name:'АО МедиаГрупп',contact:'Дмитрий Лось',stage:'КП отправлено',value:420000,days:7,score:67,source:'Реклама',reason:null},
+  {id:'l4',name:'ООО Техносфера',contact:'Анна Климова',stage:'Квалификация',value:95000,days:45,score:22,source:'Сайт',reason:'Не тот ЛПР'},
+  {id:'l5',name:'ПАО РосТех',contact:'Игорь Семёнов',stage:'Закрыта ✓',value:1200000,days:28,score:95,source:'Рекомендация',reason:null},
+  {id:'l6',name:'ООО Партнёр+',contact:'Светлана Орлова',stage:'Квалификация',value:78000,days:51,score:18,source:'Холодный обзвон',reason:'Нет потребности'},
+  {id:'l7',name:'ИП Соколов В.',contact:'Виктор Соколов',stage:'КП отправлено',value:230000,days:9,score:71,source:'Выставка',reason:null},
+  {id:'l8',name:'ООО Инновации',contact:'Марина Белова',stage:'Потеряна ✗',value:560000,days:60,score:15,source:'Сайт',reason:'Выбрали конкурента'},
+];
+const CRM_DEALS = [
+  {month:'Янв',won:3,lost:5,pipeline:2100000},{month:'Фев',won:5,lost:4,pipeline:3400000},
+  {month:'Мар',won:4,lost:6,pipeline:2800000},{month:'Апр',won:7,lost:3,pipeline:4200000},
+  {month:'Май',won:6,lost:5,pipeline:3900000},{month:'Июн',won:4,lost:8,pipeline:2600000},
+];
+const CRM_STATS = {
+  totalLeads:8, qualified:3, convRate:37.5, avgDeal:485000,
+  lostReasons:[{r:'Нет бюджета',n:4},{r:'Не тот ЛПР',n:3},{r:'Нет потребности',n:3},{r:'Выбрали конкурента',n:2}],
+  avgCycle:24,
+};
+
+// ── CRM SCREEN ────────────────────────────────────────────
+const CRMScreen = ({setPage}) => {
+  const [tab,setTab] = useState('pipeline');
+  const [selectedLead,setSelectedLead] = useState(null);
+
+  const stageColor = s => ({
+    'Квалификация':'#FF9500','Переговоры':'#007AFF','КП отправлено':'#5856D6',
+    'Закрыта ✓':'#34C759','Потеряна ✗':'#FF3B30'
+  }[s]||'#8E8E93');
+
+  const scoreColor = s => s>=70?'#34C759':s>=40?'#FF9500':'#FF3B30';
+
+  return <div className="page fade-up">
+    <div className="px" style={{paddingTop:16}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+        <div>
+          <h1 style={{fontSize:24,fontWeight:800}}>CRM</h1>
+          <div style={{fontSize:13,color:'var(--hint)',marginTop:2}}>Воронка продаж</div>
+        </div>
+        <button onClick={()=>setPage('ai')} style={{display:'flex',alignItems:'center',gap:6,background:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff',border:'none',borderRadius:12,padding:'8px 14px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          🤖 AI анализ
+        </button>
+      </div>
+
+      {/* KPI row */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
+        {[
+          ['🎯',CRM_STATS.totalLeads,'Лидов'],
+          ['✅',CRM_STATS.qualified,'Квал.'],
+          [' ',`${CRM_STATS.convRate}%`,'Конверсия'],
+          ['💰',fmt(CRM_STATS.avgDeal,true),'Ср. сделка'],
+        ].map(([icon,val,label],i)=>(
+          <div key={i} className="card" style={{textAlign:'center',padding:10}}>
+            <div style={{fontSize:13,fontWeight:800,marginBottom:2}}>{val}</div>
+            <div style={{fontSize:10,color:'var(--hint)'}}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <div className="tabs" style={{marginBottom:16}}>
+        {[['📋 Лиды','pipeline'],['📊 Динамика','dynamics'],['🔍 Причины','reasons']].map(([l,v])=>(
+          <button key={v} onClick={()=>setTab(v)} className={`tab ${tab===v?'active':'inactive'}`}>{l}</button>
+        ))}
+      </div>
+
+      {/* PIPELINE */}
+      {tab==='pipeline' && <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {CRM_LEADS.map(lead=>(
+          <div key={lead.id} className="card" style={{cursor:'pointer',transition:'transform .1s'}}
+            onClick={()=>setSelectedLead(selectedLead?.id===lead.id?null:lead)}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
+              <div style={{flex:1,minWidth:0,paddingRight:8}}>
+                <div style={{fontWeight:700,fontSize:15,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lead.name}</div>
+                <div style={{fontSize:12,color:'var(--hint)',marginTop:2}}>{lead.contact}</div>
+              </div>
+              <div style={{textAlign:'right',flexShrink:0}}>
+                <div style={{fontWeight:800,fontSize:14}}>{fmt(lead.value,true)}</div>
+                <div style={{fontSize:11,color:'var(--hint)'}}>{lead.days} дн.</div>
+              </div>
+            </div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style={{fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:6,background:stageColor(lead.stage)+'22',color:stageColor(lead.stage)}}>{lead.stage}</span>
+              <div style={{display:'flex',alignItems:'center',gap:6}}>
+                <div style={{fontSize:11,color:'var(--hint)'}}>Скор:</div>
+                <div style={{width:40,height:5,borderRadius:3,background:'var(--bg)'}}>
+                  <div style={{height:5,borderRadius:3,background:scoreColor(lead.score),width:`${lead.score}%`}}/>
+                </div>
+                <div style={{fontSize:12,fontWeight:700,color:scoreColor(lead.score)}}>{lead.score}</div>
+              </div>
+            </div>
+
+            {/* Expanded detail */}
+            {selectedLead?.id===lead.id && <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid var(--border)'}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
+                {[['Источник',lead.source],['В воронке',`${lead.days} дней`],['Стадия',lead.stage],['Скор',lead.score+'/100']].map(([k,v])=>(
+                  <div key={k}><div style={{fontSize:11,color:'var(--hint)'}}>{k}</div><div style={{fontSize:13,fontWeight:600,marginTop:1}}>{v}</div></div>
+                ))}
+              </div>
+              {lead.reason && <div style={{background:'#FF3B3011',borderRadius:10,padding:'8px 10px',fontSize:12,color:'var(--red)'}}>⚠️ Причина потери: {lead.reason}</div>}
+              <div style={{display:'flex',gap:8,marginTop:10}}>
+                <button style={{flex:1,padding:'8px',borderRadius:10,background:'var(--btn)',color:'#fff',border:'none',fontSize:12,fontWeight:700,cursor:'pointer'}}>✏️ Редактировать</button>
+                <button onClick={(e)=>{e.stopPropagation();setPage('ai');}} style={{flex:1,padding:'8px',borderRadius:10,background:'#667eea22',color:'#667eea',border:'none',fontSize:12,fontWeight:700,cursor:'pointer'}}>🤖 AI анализ</button>
+              </div>
+            </div>}
+          </div>
+        ))}
+      </div>}
+
+      {/* DYNAMICS */}
+      {tab==='dynamics' && <div style={{display:'flex',flexDirection:'column',gap:14}}>
+        <div className="card">
+          <div className="sec-title">Сделки по месяцам</div>
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={CRM_DEALS} margin={{top:4,right:0,left:0,bottom:0}}>
+              <XAxis dataKey="month" tick={{fontSize:10,fill:'var(--hint)'}} axisLine={false} tickLine={false}/>
+              <YAxis hide/>
+              <Tooltip content={<CustomTooltip/>}/>
+              <Bar dataKey="won" name="Закрыто" fill="#34C759" radius={[4,4,0,0]} stackId="a"/>
+              <Bar dataKey="lost" name="Потеряно" fill="#FF3B30" radius={[0,0,0,0]} stackId="a"/>
+            </BarChart>
+          </ResponsiveContainer>
+          <div style={{display:'flex',gap:16,marginTop:8}}>
+            {[['#34C759','Закрыто'],['#FF3B30','Потеряно']].map(([c,l])=>(
+              <div key={l} style={{display:'flex',alignItems:'center',gap:5}}>
+                <div style={{width:10,height:10,borderRadius:5,background:c}}/>
+                <span style={{fontSize:12,color:'var(--hint)'}}>{l}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card">
+          <div className="sec-title">Pipeline по месяцам (₽)</div>
+          <ResponsiveContainer width="100%" height={150}>
+            <AreaChart data={CRM_DEALS} margin={{top:4,right:0,left:0,bottom:0}}>
+              <defs>
+                <linearGradient id="gp" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#667eea" stopOpacity={.3}/>
+                  <stop offset="95%" stopColor="#667eea" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="month" tick={{fontSize:10,fill:'var(--hint)'}} axisLine={false} tickLine={false}/>
+              <YAxis hide/>
+              <Tooltip content={<CustomTooltip/>}/>
+              <Area type="monotone" dataKey="pipeline" stroke="#667eea" strokeWidth={2} fill="url(#gp)" name="Pipeline" dot={false}/>
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>}
+
+      {/* REASONS */}
+      {tab==='reasons' && <div style={{display:'flex',flexDirection:'column',gap:12}}>
+        <div className="card">
+          <div className="sec-title">Причины потери лидов</div>
+          {CRM_STATS.lostReasons.map((r,i)=>{
+            const max = Math.max(...CRM_STATS.lostReasons.map(x=>x.n));
+            const pct = Math.round(r.n/max*100);
+            return <div key={i} style={{marginBottom:14}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
+                <span style={{fontSize:13,fontWeight:600}}>{r.r}</span>
+                <span style={{fontSize:13,fontWeight:700,color:'var(--red)'}}>{r.n} лидов</span>
+              </div>
+              <div style={{height:6,borderRadius:3,background:'var(--bg)'}}>
+                <div style={{height:6,borderRadius:3,background:'#FF3B30',width:`${pct}%`,transition:'width .6s'}}/>
+              </div>
+            </div>;
+          })}
+        </div>
+        <div className="card" style={{background:'#667eea15',border:'1px solid #667eea33'}}>
+          <div style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+            <span style={{fontSize:22}}>🤖</span>
+            <div>
+              <div style={{fontWeight:700,fontSize:14,color:'#667eea',marginBottom:4}}>AI может объяснить причины</div>
+              <div style={{fontSize:13,color:'var(--hint)',lineHeight:1.4,marginBottom:10}}>Спроси ассистента: «Почему мои лиды не квалифицируются?» — и получи детальный анализ с рекомендациями.</div>
+              <button onClick={()=>setPage('ai')} style={{background:'#667eea',color:'#fff',border:'none',borderRadius:10,padding:'9px 16px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+                Открыть AI чат →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>}
+    </div>
+  </div>;
+};
+
+// ── AI BUILT-IN KNOWLEDGE BASE ────────────────────────────
+const AI_KNOWLEDGE = {
+  finance: {
+    balance: 5504100, income: 2340000, expenses: 1876500, profit: 463500,
+    savingsRate: 19.8, incomeChange: 12.4, expensesChange: -3.1,
+    accounts: [{name:'Т-Банк расчётный', bal:1847320},{name:'Т-Банк депозит', bal:3200000},{name:'Сбер корп.карта', bal:456780}],
+    topExpenses: [{cat:'Закупки',amt:680000},{cat:'Зарплата',amt:540000},{cat:'Аренда',amt:240000},{cat:'Маркетинг',amt:180000},{cat:'Налоги',amt:156000}],
+  },
+  crm: {
+    totalLeads: 8, qualified: 3, convRate: 37.5, avgDeal: 485000, avgCycle: 24,
+    leads: CRM_LEADS,
+    lostReasons: CRM_STATS.lostReasons,
+    monthlyConv: [{m:'Янв',won:3,lost:5},{m:'Фев',won:5,lost:4},{m:'Мар',won:4,lost:6},{m:'Апр',won:7,lost:3},{m:'Май',won:6,lost:5},{m:'Июн',won:4,lost:8}],
+  }
+};
+
+// Smart rule-based AI engine — анализирует вопрос и отвечает на основе реальных данных
+const generateAIResponse = (question, history) => {
+  const q = question.toLowerCase();
+  const f = AI_KNOWLEDGE.finance;
+  const c = AI_KNOWLEDGE.crm;
+
+  const fmtR = n => new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',minimumFractionDigits:0}).format(n);
+
+  // Определяем тему вопроса
+  const isLeads = q.includes('лид') || q.includes('квалифик') || q.includes('воронк') || q.includes('конверс');
+  const isChannel = q.includes('канал') || q.includes('источник') || q.includes('откуда') || q.includes('трафик');
+  const isFinance = q.includes('финанс') || q.includes('состоян') || q.includes('баланс') || q.includes('деньг');
+  const isExpense = q.includes('расход') || q.includes('оптимиз') || q.includes('сократ') || q.includes('экономи');
+  const isForecast = q.includes('прогноз') || q.includes('следующ') || q.includes('план') || q.includes('предскаж');
+  const isConv = q.includes('конверс') || q.includes('улучш') || q.includes('повыс');
+  const isLost = q.includes('потер') || q.includes('потеря') || q.includes('уход') || q.includes('отказ');
+
+  const stuckLeads = c.leads.filter(l => l.stage==='Квалификация' && l.score < 40);
+  const hotLeads = c.leads.filter(l => l.score >= 70 && l.stage !== 'Закрыта ✓' && l.stage !== 'Потеряна ✗');
+  const lostLeads = c.leads.filter(l => l.stage === 'Потеряна ✗');
+
+  if (isLeads || (isConv && !isFinance)) {
+    const reasonsList = c.lostReasons.map(r=>`• **${r.r}** — ${r.n} лидов`).join('\n');
+    const stuckList = stuckLeads.map(l=>`• ${l.name} (скор ${l.score}, ${l.days} дн., ${l.source})`).join('\n');
+    return `## Почему лиды не квалифицируются
+
+**Текущая картина:** из ${c.totalLeads} лидов только ${c.qualified} прошли квалификацию — конверсия ${c.convRate}%. Это ниже нормы для B2B (обычно 50–60%).
+
+### Главные причины по данным CRM:
+${reasonsList}
+
+### Проблемные лиды прямо сейчас:
+${stuckList}
+
+### Мой анализ:
+
+**1. Плохое качество трафика с сайта.** Из сайта пришли Васильева (скор 31), Техносфера (скор 22), Партнёр+ (скор 18) — все зависли на квалификации. Сайт явно привлекает нецелевую аудиторию.
+
+**2. Нет скрипта выявления бюджета.** "Нет бюджета" — причина №1. Это значит менеджеры не квалифицируют бюджет на первом звонке.
+
+**3. Выходим не на ЛПР.** "Не тот ЛПР" — 3 случая. Нужен вопрос "Кто принимает решение о покупке?" в начале диалога.
+
+### Рекомендации:
+• Добавить 3 квалификационных вопроса на сайте перед заявкой
+• Скрипт: "Какой бюджет заложен на решение?" — первый звонок
+• Лиды с сайта со скором < 30 отправлять в nurturing, не в активные продажи
+• Сфокусироваться на входящих звонках и рекомендациях (скор 82–95)`;
+  }
+
+  if (isChannel) {
+    const bySource = {};
+    c.leads.forEach(l => {
+      if(!bySource[l.source]) bySource[l.source]={total:0,closed:0,totalVal:0};
+      bySource[l.source].total++;
+      bySource[l.source].totalVal += l.value;
+      if(l.stage==='Закрыта ✓') bySource[l.source].closed++;
+    });
+    const rows = Object.entries(bySource)
+      .map(([s,d])=>({s,total:d.total,closed:d.closed,conv:Math.round(d.closed/d.total*100),avg:Math.round(d.totalVal/d.total)}))
+      .sort((a,b)=>b.conv-a.conv);
+    const table = rows.map(r=>`• **${r.s}**: ${r.total} лидов, закрыто ${r.closed}, конверсия ${r.conv}%, ср.чек ${fmtR(r.avg)}`).join('\n');
+    const best = rows[0];
+    return `## Анализ каналов продаж
+
+${table}
+
+### Вывод:
+**Лучший канал — ${best.s}** с конверсией ${best.conv}%. Именно оттуда пришёл ПАО РосТех на ${fmtR(1200000)}.
+
+**Сайт — слабейший канал.** Конверсия низкая, лиды зависают на квалификации. При этом маркетинговый бюджет ${fmtR(f.topExpenses.find(e=>e.cat==='Маркетинг').amt)}/мес.
+
+### Рекомендации:
+• Увеличить бюджет на реферальную программу — ROI максимальный
+• Пересмотреть landing page: добавить фильтр на входе
+• Выставки дают хороший скор (71) — участвовать активнее
+• Холодный обзвон показывает худший результат — сократить`;
+  }
+
+  if (isExpense) {
+    const totalExp = f.topExpenses.reduce((s,e)=>s+e.amt,0);
+    const expList = f.topExpenses.map(e=>`• **${e.cat}**: ${fmtR(e.amt)} (${Math.round(e.amt/totalExp*100)}%)`).join('\n');
+    return `## Анализ расходов и возможности оптимизации
+
+**Общие расходы за месяц:** ${fmtR(f.expenses)}
+**Прибыль:** ${fmtR(f.profit)} (${f.savingsRate}% маржа)
+
+### Структура расходов:
+${expList}
+
+### Где можно оптимизировать:
+
+**1. Маркетинг (${fmtR(180000)}/мес)**
+При конверсии сайта ниже нормы — деньги тратятся неэффективно. Перераспредели 30% бюджета на реферальную программу.
+Потенциальная экономия: **${fmtR(54000)}/мес**
+
+**2. Закупки (${fmtR(680000)}/мес)**
+Крупнейшая статья — 36% расходов. Стоит проверить: есть ли тендеры среди поставщиков? Квартальные скидки за объём?
+Потенциальная экономия: **${fmtR(68000)}/мес** при скидке 10%
+
+**3. Налоговая оптимизация**
+${fmtR(156000)}/мес — проверь актуальность налогового режима. При текущей выручке возможен переход на более выгодный режим.
+
+### Итого потенциал оптимизации: ~${fmtR(122000)}/мес`;
+  }
+
+  if (isFinance) {
+    const accList = f.accounts.map(a=>`• ${a.name}: ${fmtR(a.bal)}`).join('\n');
+    return `## Финансовое состояние бизнеса
+
+### Счета:
+${accList}
+**Итого: ${fmtR(f.balance)}**
+
+### Месяц в цифрах:
+• Приход: **${fmtR(f.income)}** (+${f.incomeChange}% к прошлому месяцу ✅)
+• Расход: **${fmtR(f.expenses)}** (${f.expensesChange}% к прошлому ✅)
+• Прибыль: **${fmtR(f.profit)}** — маржа ${f.savingsRate}%
+
+### Оценка:
+**Состояние стабильное.** Доходы растут, расходы снижаются — хороший тренд.
+
+Маржа ${f.savingsRate}% для B2B-сервиса — ниже целевого (25–35%). Основные резервы роста: качество лидов (конверсия CRM 37.5% при норме 55%) и оптимизация маркетингового бюджета.
+
+### На что обратить внимание:
+• ${fmtR(3200000)} на депозите — деньги работают, хорошо
+• Расчётный счёт ${fmtR(1847320)} — покрывает ~1 месяц расходов, норма
+• Если конверсия CRM вырастет до 55% — выручка увеличится на ~${fmtR(850000)}/мес`;
+  }
+
+  if (isForecast) {
+    const lastMonths = c.monthlyConv;
+    const avgWon = Math.round(lastMonths.reduce((s,m)=>s+m.won,0)/lastMonths.length);
+    const trend = lastMonths[5].won > lastMonths[4].won ? 'растёт' : 'снижается';
+    return `## Прогноз на следующий месяц
+
+### На основе данных за 6 месяцев:
+
+**Средние показатели:**
+• Закрытых сделок в месяц: ~${avgWon}
+• Средний чек: ${fmtR(c.avgDeal)}
+• Прогноз выручки: **${fmtR(avgWon * c.avgDeal)}**
+
+**Текущий тренд:** конверсия ${trend} (Июнь: 4 закрыто, 8 потеряно — худший месяц за полгода).
+
+### Что в воронке прямо сейчас:
+• ООО Альфастрой — ${fmtR(850000)}, стадия Переговоры, скор 82 → **вероятность закрытия высокая**
+• АО МедиаГрупп — ${fmtR(420000)}, КП отправлено, скор 67 → **средняя вероятность**
+• ИП Соколов — ${fmtR(230000)}, КП отправлено, скор 71 → **хорошие шансы**
+
+**Оптимистичный прогноз:** ${fmtR(850000+420000+230000)} (если закрыть всех трёх)
+**Реалистичный прогноз:** ${fmtR(850000+230000)} (Альфастрой + Соколов)
+
+### Рекомендация:
+Приоритет на этой неделе — дожать Альфастрой (${fmtR(850000)}). Максимальная сделка с высоким скором.`;
+  }
+
+  if (isLost) {
+    const lostList = lostLeads.map(l=>`• ${l.name} — ${fmtR(l.value)}, причина: ${l.reason||'не указана'}`).join('\n');
+    return `## Анализ потерянных лидов
+
+### Потерянные сделки:
+${lostList}
+
+### Причины потерь по всей воронке:
+${c.lostReasons.map(r=>`• **${r.r}**: ${r.n} случаев`).join('\n')}
+
+### Что это значит:
+Основная проблема — **плохая квалификация на входе**, а не слабость продукта. Лиды доходят до поздних стадий без проверки бюджета и ЛПР.
+
+### Что делать:
+**Немедленно:**
+• Внедри BANT-квалификацию (Budget, Authority, Need, Timeline) на первом звонке
+• Лид без бюджета → nurturing, не активные продажи
+
+**Стратегически:**
+• Проанализировать, почему "Выбрали конкурента" — что предложили они? Цена? Условия?
+• Настроить follow-up через 3 месяца для потерянных лидов — ситуация меняется`;
+  }
+
+  // Общий fallback с контекстом из истории
+  const lastUserMsg = history.filter(m=>m.role==='user').slice(-1)[0]?.content || '';
+  return `Понял вопрос. Давай разберём по данным твоего бизнеса.
+
+**Текущий контекст:**
+• Баланс: ${fmtR(f.balance)} | Прибыль: ${fmtR(f.profit)}/мес
+• CRM: ${c.totalLeads} лидов, конверсия ${c.convRate}%, средний чек ${fmtR(c.avgDeal)}
+
+Уточни, что именно тебя интересует — я могу детально разобрать:
+• **Почему лиды не квалифицируются** — анализ воронки
+• **Какой канал самый эффективный** — разбивка по источникам  
+• **Как оптимизировать расходы** — по статьям
+• **Прогноз выручки** — на основе текущего pipeline
+• **Финансовое состояние** — полный обзор`;
+};
+
+const QUICK_QUESTIONS = [
+  'Почему мои лиды не квалифицируются?',
+  'Какой канал продаж самый эффективный?',
+  'Как улучшить конверсию воронки?',
+  'Анализ финансового состояния',
+  'Какие расходы можно оптимизировать?',
+  'Прогноз выручки на следующий месяц',
+];
+
+const AIScreen = () => {
+  const [messages, setMessages] = useState([
+    {role:'assistant', content:'Привет! 👋 Я AI-ассистент с доступом к твоим финансам и CRM.\n\nЗнаю всё о твоих **8 лидах**, причинах потерь, движении денег на счетах и структуре расходов.\n\nСпрашивай — отвечу по реальным данным.'}
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const bottomRef = React.useRef(null);
+
+  useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:'smooth'}); },[messages]);
+
+  const sendMessage = async (text) => {
+    const content = (text||input).trim();
+    if(!content||loading) return;
+    setInput('');
+    const newMessages = [...messages, {role:'user', content}];
+    setMessages(newMessages);
+    setLoading(true);
+    // Simulate thinking delay for realism
+    await new Promise(r=>setTimeout(r, 900 + Math.random()*600));
+    const reply = generateAIResponse(content, newMessages);
+    setMessages(prev=>[...prev, {role:'assistant', content:reply}]);
+    setLoading(false);
+  };
+
+  const formatText = (text) => text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^### (.*)/gm, '<div style="font-size:13px;font-weight:800;margin:12px 0 5px;color:var(--text);letter-spacing:.01em">$1</div>')
+    .replace(/^## (.*)/gm, '<div style="font-size:15px;font-weight:800;margin:4px 0 10px;color:var(--text)">$1</div>')
+    .replace(/^• (.*)/gm, '<div style="display:flex;gap:7px;margin:4px 0;line-height:1.4"><span style="color:#667eea;flex-shrink:0;font-weight:700">•</span><span>$1</span></div>')
+    .replace(/\n/g, '<br/>');
+
+  return <div style={{display:'flex',flexDirection:'column',height:'100vh',background:'var(--bg)'}}>
+    {/* Header */}
+    <div style={{background:'var(--card)',borderBottom:'1px solid var(--border)',padding:'14px 16px',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
+      <div style={{width:42,height:42,borderRadius:21,background:'linear-gradient(135deg,#667eea,#764ba2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>🤖</div>
+      <div style={{flex:1}}>
+        <div style={{fontWeight:800,fontSize:16}}>AI Ассистент</div>
+        <div style={{fontSize:12,color:'var(--hint)',display:'flex',alignItems:'center',gap:4}}>
+          <span style={{width:6,height:6,borderRadius:3,background:'#34C759',display:'inline-block'}}/>
+          Онлайн · Финансы + CRM подключены
+        </div>
+      </div>
+      <button onClick={()=>setMessages([{role:'assistant',content:'Привет! 👋 Чем могу помочь?'}])}
+        style={{width:36,height:36,borderRadius:18,background:'var(--bg)',border:'none',fontSize:14,cursor:'pointer',color:'var(--hint)',fontWeight:600}}>
+        ✕
+      </button>
+    </div>
+
+    {/* Messages */}
+    <div style={{flex:1,overflowY:'auto',padding:'16px',display:'flex',flexDirection:'column',gap:14}}>
+      {messages.length===1 && (
+        <div style={{marginBottom:4}}>
+          <div style={{fontSize:11,color:'var(--hint)',marginBottom:10,textAlign:'center',textTransform:'uppercase',letterSpacing:'.06em'}}>Попробуй спросить</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8,justifyContent:'center'}}>
+            {QUICK_QUESTIONS.map((q,i)=>(
+              <button key={i} onClick={()=>sendMessage(q)}
+                style={{fontSize:12,padding:'8px 14px',borderRadius:20,border:'1px solid var(--border)',background:'var(--card)',color:'var(--text)',cursor:'pointer',lineHeight:1.35,textAlign:'left',fontFamily:'inherit',transition:'border-color .15s'}}>
+                {q}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {messages.map((m,i)=>(
+        <div key={i} style={{display:'flex',alignItems:'flex-end',gap:8,flexDirection:m.role==='user'?'row-reverse':'row'}}>
+          {m.role==='assistant' && (
+            <div style={{width:30,height:30,borderRadius:15,background:'linear-gradient(135deg,#667eea,#764ba2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,flexShrink:0,marginBottom:2}}>🤖</div>
+          )}
+          <div style={{
+            maxWidth:'84%',padding:'12px 15px',
+            borderRadius:m.role==='user'?'18px 18px 4px 18px':'4px 18px 18px 18px',
+            background:m.role==='user'?'linear-gradient(135deg,#667eea,#764ba2)':'var(--card)',
+            color:m.role==='user'?'#fff':'var(--text)',
+            fontSize:14,lineHeight:1.55,wordBreak:'break-word',
+            boxShadow:'0 1px 6px rgba(0,0,0,.08)'
+          }}>
+            {m.role==='assistant'
+              ? <div dangerouslySetInnerHTML={{__html:formatText(m.content)}}/>
+              : m.content
+            }
+          </div>
+        </div>
+      ))}
+
+      {loading && (
+        <div style={{display:'flex',alignItems:'flex-end',gap:8}}>
+          <div style={{width:30,height:30,borderRadius:15,background:'linear-gradient(135deg,#667eea,#764ba2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,flexShrink:0}}>🤖</div>
+          <div style={{background:'var(--card)',borderRadius:'4px 18px 18px 18px',padding:'14px 18px',boxShadow:'0 1px 6px rgba(0,0,0,.08)'}}>
+            <div style={{display:'flex',gap:5,alignItems:'center'}}>
+              {[0,1,2].map(j=>(
+                <div key={j} style={{width:7,height:7,borderRadius:'50%',background:'#667eea',opacity:.7,animation:`bounce 1.1s ${j*0.18}s infinite`}}/>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      <div ref={bottomRef}/>
+    </div>
+
+    {/* Input */}
+    <div style={{background:'var(--card)',borderTop:'1px solid var(--border)',padding:'10px 12px',display:'flex',gap:8,alignItems:'flex-end',flexShrink:0,paddingBottom:'max(10px,env(safe-area-inset-bottom))'}}>
+      <textarea
+        value={input}
+        onChange={e=>{setInput(e.target.value);e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,120)+'px';}}
+        onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}}
+        placeholder="Спроси про финансы или CRM..."
+        rows={1}
+        style={{flex:1,resize:'none',border:'none',outline:'none',background:'var(--bg)',borderRadius:20,padding:'10px 14px',fontSize:14,fontFamily:'inherit',color:'var(--text)',maxHeight:120,lineHeight:1.4}}
+      />
+      <button onClick={()=>sendMessage()} disabled={!input.trim()||loading}
+        style={{width:40,height:40,borderRadius:20,background:input.trim()&&!loading?'linear-gradient(135deg,#667eea,#764ba2)':'var(--bg)',border:'none',cursor:input.trim()&&!loading?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0,transition:'all .2s',color:input.trim()&&!loading?'#fff':'var(--hint)'}}>
+        ↑
+      </button>
+    </div>
+
+    <style>{`@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}`}</style>
+  </div>;
+};
+
+// ── APP ROOT ──────────────────────────────────────────────
+const NAV = [['📊','Главная','dashboard'],['📋','Операции','transactions'],['📈','Аналитика','analytics'],['🏦','Счета','accounts'],['👥','CRM','crm'],['⚙️','Настройки','settings']];
+const NO_NAV_PAGES = ['ai'];
+
+const App = () => {
+  const [authed,setAuthed] = useState(false);
+  const [page,setPage] = useState('dashboard');
+  const [user,setUser] = useState({name:'Алексей Петров',username:'@aleksey_petров'});
+
+  const logout = () => { if(confirm('Выйти из аккаунта?')) { localStorage.removeItem('fin_token'); setAuthed(false); } };
+
+  useEffect(()=>{
+    const tg = window.Telegram?.WebApp;
+    if(!tg) return;
+    tg.ready(); tg.expand();
+    const apply = () => {
+      const t = tg.themeParams; const r = document.documentElement.style;
+      if(t.bg_color) r.setProperty('--bg', t.secondary_bg_color||t.bg_color);
+      if(t.secondary_bg_color) r.setProperty('--card', t.bg_color||'#fff');
+      if(t.text_color) r.setProperty('--text', t.text_color);
+      if(t.hint_color) r.setProperty('--hint', t.hint_color);
+      if(t.button_color) r.setProperty('--btn', t.button_color);
+    };
+    apply(); tg.onEvent('themeChanged', apply);
+  },[]);
+
+  const handleLogin = (userData) => {
+    const n = [userData.first_name,userData.last_name].filter(Boolean).join(' ')||userData.username||'Пользователь';
+    setUser({name:n, username:'@'+(userData.username||'user'), id:userData.id});
+    setAuthed(true);
+  };
+
+  if(!authed) return <AuthScreen onLogin={handleLogin}/>;
+
+  return <div>
+    {page==='dashboard'&&<DashboardScreen user={user} setPage={setPage}/>}
+    {page==='transactions'&&<TransactionsScreen/>}
+    {page==='analytics'&&<AnalyticsScreen/>}
+    {page==='accounts'&&<AccountsScreen/>}
+    {page==='crm'&&<CRMScreen setPage={setPage}/>}
+    {page==='settings'&&<SettingsScreen user={user} onLogout={logout}/>}
+    {page==='ai'&&<AIScreen/>}
+
+    {!NO_NAV_PAGES.includes(page) && <nav className="bnav">
+      {NAV.map(([icon,label,id])=>(
+        <button key={id} className={`bnav-btn ${page===id?'active':''}`} onClick={()=>setPage(id)}>
+          <span className="bnav-icon" style={{fontSize:id==='ai'?20:22}}>{icon}</span>
+          <span className="bnav-label" style={{color:page===id?'var(--btn)':'var(--hint)'}}>{label}</span>
+        </button>
+      ))}
+    </nav>}
+
+    {/* AI floating button (shown on all pages except ai itself) */}
+    {page!=='ai' && <button onClick={()=>setPage('ai')}
+      style={{position:'fixed',bottom:page==='ai'?20:88,right:16,width:52,height:52,borderRadius:26,background:'linear-gradient(135deg,#667eea,#764ba2)',border:'none',fontSize:22,cursor:'pointer',boxShadow:'0 4px 20px rgba(102,126,234,.5)',zIndex:99,display:'flex',alignItems:'center',justifyContent:'center',transition:'bottom .3s'}}>
+      🤖
+    </button>}
+  </div>;
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
